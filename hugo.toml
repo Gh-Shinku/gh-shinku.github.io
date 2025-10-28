@@ -1,0 +1,18 @@
+theme = "nostyleplease"
+baseURL = 'https://gh-shinku.github.io/'
+languageCode = 'en-us'
+title = "shinku's blog"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    noClasses = false
+    style = "friendly"
+    tabWidth = 4
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
