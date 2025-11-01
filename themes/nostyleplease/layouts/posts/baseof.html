@@ -3,7 +3,8 @@
     {{- partial "head.html" . -}}
     <body a="{{ $.Site.Params.theme_config.appearance | default "auto" }}">
         <main class="page-content" aria-label="Content">
-            <div class="w">
+            <!-- Unified container for all content -->
+            <div class="page-container">
                 <div class="post-meta">
                     {{ partial "back_link.html" .}}
                     <p>
@@ -12,6 +13,7 @@
                         </time>
                     </p>
                 </div>
+                
                 {{- block "main" . }}{{- end }}
             </div>
         </main>

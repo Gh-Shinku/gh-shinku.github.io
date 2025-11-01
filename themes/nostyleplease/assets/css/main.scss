@@ -38,21 +38,28 @@
   figcaption { color: $--secondary-text-color; }
 
   blockquote {
-    font-style: italic;
-    color: $--secondary-text-color;
+    background-color: var(--bg-color-secondary);
+    border-left: 4px solid var(--border-color);
+    color: var(--text-color-secondary);
+    font-style: normal;
 
     &::before, &::after {
-      color: $--primary-text-color;
-      opacity: 0.5;
+      content: none;
     }
   }
 }
 
 @mixin dark-appearance {
-  @include theme(#000000, #ffffff, #000000, #79a8ff, #f78fe7, #2f3849); // modus-vivendi
+  --bg-color-secondary: #1a1a1a;
+  --border-color: #444;
+  --text-color-secondary: #ccc;
+  @include theme(#000000, #ffffff, #cccccc, #79a8ff, #f78fe7, #2f3849); // modus-vivendi
 }
 
 @mixin light-appearance {
+  --bg-color-secondary: #f5f5f5;
+  --border-color: #ccc;
+  --text-color-secondary: #555;
   @include theme(#ffffff, #000000, #595959, #3548cf, #8f0075, #dae5ec); // modus-operandi
 }
 
@@ -149,20 +156,29 @@ code.has-jax {
   font-size: 100%;
 }
 
+/* 为行内代码添加样式 */
+p > code, li > code, dd > code, dt > code {
+  background-color: var(--bg-color-secondary);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* 为代码块容器添加边框和圆角 */
+.highlight {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  overflow: hidden; /* 确保圆角能正确裁剪内部元素的背景 */
+  padding-left: 1rem;
+}
+
 blockquote {
-  display: inline-block;
-  padding: 0;
-  margin-left: 0;
-  margin-right: 0;
+  margin: 1.5rem 0;
+  padding: 0.5rem 1rem;
 
-  p { margin: 0; }
-
-  &::before {
-    content: '"';
-  }
-
-  &::after {
-    content: '"';
+  p {
+    margin: 0.5rem 0;
   }
 }
 
@@ -204,4 +220,102 @@ details[open] summary {
 
 .toc {
   padding: 1rem;
+}
+// ...existing code...
+.w {
+  max-width: 640px;
+}
+
+/* NEW: Unified page container */
+.page-container {
+    max-width: 1200px; /* Set a max-width for wide screens */
+    margin: 0 auto;    /* Center the container */
+    padding: 0 2rem;   /* Add horizontal padding */
+}
+
+/* REPLACE previous .post-layout styles with these */
+.post-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start; /* Align items to the top */
+}
+
+.post-content {
+    flex: 1;
+    min-width: 0; 
+}
+
+.post-toc {
+    flex: 0 0 250px; /* Give TOC a fixed width */
+    width: 250px;
+    position: sticky;
+    top: 2rem;
+    align-self: flex-start;
+    height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+
+.post-toc.with-border {
+    border-left: 1px solid var(--border-color);
+    padding-left: 1.5rem;
+}
+
+.post-toc #TableOfContents > ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.post-toc #TableOfContents > ul > li > a {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--text-color);
+}
+
+.post-toc #TableOfContents ul {
+    list-style: none;
+    padding-left: 1em;
+}
+
+.post-toc #TableOfContents a {
+    display: block;
+    padding: 0.3em 0;
+    text-decoration: none;
+    color: var(--text-color-light);
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+}
+
+.post-toc #TableOfContents a:hover {
+    color: var(--text-color);
+    background-color: var(--bg-color-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .post-layout {
+        flex-direction: column-reverse;
+    }
+
+    .post-toc {
+        position: static;
+        height: auto;
+        max-height: 40vh;
+        width: 100%;
+        margin-bottom: 2rem;
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .post-toc.with-border {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 0 1rem; /* Reduce padding on smaller screens */
+    }
 }

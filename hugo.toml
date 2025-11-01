@@ -1,6 +1,6 @@
 theme = "nostyleplease"
 baseURL = 'https://gh-shinku.github.io/'
-languageCode = 'en-us'
+languageCode = 'zh-cn'
 title = "shinku's blog"
 
 [markup]
@@ -12,7 +12,16 @@ title = "shinku's blog"
     noClasses = false
     style = "friendly"
     tabWidth = 4
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 4
+    ordered = false
 
 [caches]
   [caches.images]
     dir = ':cacheDir/images'
+
+[params]
+  favicon = "favicon.ico"
+  toc = true
+  tocBorder = true
