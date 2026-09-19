@@ -13,6 +13,7 @@ title = "info"
 title = "all posts"
 
   [entries.post_list]
+  section = "posts"
   limit = 5
   show_more = true
   show_more_text = "See archive..."
@@ -26,3 +27,14 @@ title = "posts by time"
   show_more = true
   show_more_text = "See more posts..."
   show_more_url = "posts"
+
+[[entries]]
+title = "explore"
+
+  [[entries.entries]]
+  title = "search"
+  url = "search/"
+
+  [[entries.entries]]
+  title = "tags"
+  url = "tags/"

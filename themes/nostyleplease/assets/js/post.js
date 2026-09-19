@@ -61,6 +61,19 @@
     }
   }
 
+  document.querySelectorAll(
+    ".post-content h1[id]:not(.post-title), .post-content h2[id], .post-content h3[id], .post-content h4[id], .post-content h5[id], .post-content h6[id]"
+  ).forEach((heading) => {
+    const label = heading.textContent.trim();
+    const anchor = document.createElement("a");
+    anchor.className = "heading-anchor";
+    anchor.href = `#${heading.id}`;
+    anchor.textContent = "#";
+    anchor.title = "Permalink to this section";
+    anchor.setAttribute("aria-label", `Permalink to ${label}`);
+    heading.append(" ", anchor);
+  });
+
   const copyText = async (text) => {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);

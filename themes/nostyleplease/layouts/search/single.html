@@ -1,0 +1,20 @@
+{{ define "main" }}
+{{ partial "back_link.html" . }}
+
+<section class="search-page">
+    <h1>{{ .Title }}</h1>
+    <form class="search-form" role="search" data-index-url="{{ "index.json" | relURL }}">
+        <label for="site-search">Search articles</label>
+        <div class="search-controls">
+            <input id="site-search" name="q" type="search" autocomplete="off"
+                placeholder="Search by title, content, or tag">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+    <p class="search-status" aria-live="polite">Loading search index…</p>
+    <ol class="search-results"></ol>
+</section>
+
+{{ $searchScript := resources.Get "js/search.js" | resources.Minify | fingerprint }}
+<script defer src="{{ $searchScript.RelPermalink }}" integrity="{{ $searchScript.Data.Integrity }}"></script>
+{{ end }}

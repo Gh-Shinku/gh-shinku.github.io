@@ -3,7 +3,33 @@
 <div class="post-layout">
     <article class="post-content">
         <h1 class="post-title">{{ .Title }}</h1>
+        {{ with .GetTerms "tags" }}
+        <nav class="post-tags" aria-label="Article tags">
+            <ul>
+                {{ range . }}
+                <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+                {{ end }}
+            </ul>
+        </nav>
+        {{ end }}
         {{ .Content }}
+
+        {{ if or .PrevInSection .NextInSection }}
+        <nav class="post-pagination" aria-label="Article navigation">
+            {{ with .PrevInSection }}
+            <a class="post-pagination-prev" href="{{ .RelPermalink }}" rel="prev">
+                <span>Previous article</span>
+                <strong>{{ .Title }}</strong>
+            </a>
+            {{ end }}
+            {{ with .NextInSection }}
+            <a class="post-pagination-next" href="{{ .RelPermalink }}" rel="next">
+                <span>Next article</span>
+                <strong>{{ .Title }}</strong>
+            </a>
+            {{ end }}
+        </nav>
+        {{ end }}
     </article>
 
     {{ if and .IsPage (or .Params.toc $.Site.Params.toc) }}

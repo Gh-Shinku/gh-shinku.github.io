@@ -342,6 +342,18 @@ details[open] summary {
   align-items: center;
 }
 
+.post-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.post-dates span {
+  white-space: nowrap;
+}
+
 .w {
   max-width: 640px;
   margin: 0 auto;
@@ -402,6 +414,41 @@ details[open] summary {
     padding-bottom: 1rem;
 }
 
+.post-title:has(+ .post-tags) {
+    margin-bottom: 1rem;
+}
+
+.post-tags {
+    margin-bottom: 2.5rem;
+}
+
+.post-tags ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.post-tags li {
+    margin: 0;
+}
+
+.post-tags a {
+    background: var(--bg-color-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.65rem;
+    text-decoration: none;
+}
+
+.post-tags a:hover {
+    text-decoration: underline;
+}
+
 .post-content > h1:not(.post-title) {
     border-bottom: 1px solid var(--border-color);
     font-size: 1.5rem;
@@ -428,6 +475,25 @@ details[open] summary {
     font-size: 1rem;
     line-height: 1.5;
     margin: 1.75rem 0 0.65rem;
+}
+
+.heading-anchor {
+    font-size: 0.75em;
+    font-weight: 400;
+    opacity: 0;
+    padding: 0 0.2em;
+    text-decoration: none !important;
+    transition: opacity 120ms ease;
+}
+
+.post-content h1:hover > .heading-anchor,
+.post-content h2:hover > .heading-anchor,
+.post-content h3:hover > .heading-anchor,
+.post-content h4:hover > .heading-anchor,
+.post-content h5:hover > .heading-anchor,
+.post-content h6:hover > .heading-anchor,
+.heading-anchor:focus-visible {
+    opacity: 1;
 }
 
 .post-content > p {
@@ -506,6 +572,120 @@ details[open] summary {
     width: max-content;
 }
 
+.post-pagination {
+    border-top: 1px solid var(--border-color);
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+}
+
+.post-pagination a {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0.85rem 1rem;
+    text-decoration: none;
+}
+
+.post-pagination a:hover {
+    background: var(--bg-color-secondary);
+    text-decoration: none;
+}
+
+.post-pagination span {
+    color: var(--text-color-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.post-pagination strong {
+    overflow-wrap: anywhere;
+}
+
+.post-pagination-next {
+    grid-column: 2;
+    text-align: right;
+}
+
+.search-page h1 {
+    margin-bottom: 2rem;
+}
+
+.search-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.search-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-controls input,
+.search-controls button {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: inherit;
+    font: inherit;
+    min-height: 2.75rem;
+}
+
+.search-controls input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.55rem 0.75rem;
+}
+
+.search-controls button {
+    cursor: pointer;
+    padding: 0.55rem 1rem;
+}
+
+.search-controls button:hover {
+    background: var(--bg-color-secondary);
+}
+
+.search-status,
+.search-result-meta {
+    color: var(--text-color-secondary);
+}
+
+.search-status {
+    min-height: 1.5em;
+}
+
+.search-results {
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+}
+
+.search-results > li {
+    border-top: 1px solid var(--border-color);
+    margin: 0;
+    padding: 1.25rem 0;
+}
+
+.search-result h2 {
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.search-result-meta {
+    font-size: 0.8rem;
+    margin: 0.35rem 0;
+}
+
+.search-result-summary {
+    margin: 0.5rem 0 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
     .post-layout {
@@ -540,6 +720,32 @@ details[open] summary {
     .post-content > h1:not(.post-title) {
         margin-top: 2.5rem;
     }
+
+    .post-meta {
+        align-items: flex-start;
+    }
+
+    .post-dates {
+        flex-direction: column;
+        text-align: right;
+    }
+
+    .post-pagination {
+        grid-template-columns: 1fr;
+    }
+
+    .post-pagination-next {
+        grid-column: 1;
+    }
+
+    .search-controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+@media (hover: none) {
+    .heading-anchor { opacity: 0.65; }
 }
 
 @media (prefers-reduced-motion: reduce) {

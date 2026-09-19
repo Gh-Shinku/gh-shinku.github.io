@@ -2,6 +2,8 @@
 draft: false
 title: "DeepSeek Technical Reports"
 date: 2026-09-19T13:36:00+08:00
+lastmod: 2026-09-19T13:36:00+08:00
+tags: ["DeepSeek", "LLM", "Machine Learning"]
 ---
 
 # DeepSeekMath

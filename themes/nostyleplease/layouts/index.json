@@ -1,0 +1,15 @@
+{{- $pages := where site.RegularPages "Section" "posts" -}}
+[
+{{- range $index, $page := $pages }}
+  {{- if $index }},{{ end }}
+  {{- dict
+    "title" $page.Title
+    "url" $page.RelPermalink
+    "date" ($page.Date.Format "2006-01-02")
+    "summary" ($page.Summary | plainify | htmlUnescape | truncate 180)
+    "content" ($page.Content | plainify | htmlUnescape)
+    "tags" ($page.Params.tags | default (slice))
+    | jsonify
+  -}}
+{{- end }}
+]

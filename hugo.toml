@@ -3,6 +3,9 @@ baseURL = 'https://gh-shinku.github.io/'
 languageCode = 'zh-cn'
 title = "shinku's blog"
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
 [markup]
   [markup.goldmark.extensions]
     [markup.goldmark.extensions.passthrough]
