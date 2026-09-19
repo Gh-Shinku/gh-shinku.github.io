@@ -91,17 +91,17 @@
     const copyButton = document.createElement("button");
     copyButton.className = "code-copy";
     copyButton.type = "button";
-    copyButton.textContent = "复制";
-    copyButton.setAttribute("aria-label", "复制代码");
+    copyButton.textContent = "Copy";
+    copyButton.setAttribute("aria-label", "Copy code");
 
     copyButton.addEventListener("click", async () => {
       try {
         await copyText(code.innerText);
-        copyButton.textContent = "已复制";
+        copyButton.textContent = "Copied";
       } catch {
-        copyButton.textContent = "复制失败";
+        copyButton.textContent = "Copy failed";
       }
-      window.setTimeout(() => { copyButton.textContent = "复制"; }, 1500);
+      window.setTimeout(() => { copyButton.textContent = "Copy"; }, 1500);
     });
 
     toolbar.append(language, copyButton);
@@ -114,7 +114,7 @@
     wrapper.className = "table-scroll";
     wrapper.tabIndex = 0;
     wrapper.setAttribute("role", "region");
-    wrapper.setAttribute("aria-label", "可横向滚动的表格");
+    wrapper.setAttribute("aria-label", "Scrollable table");
     table.parentNode.insertBefore(wrapper, table);
     wrapper.append(table);
   });
@@ -149,7 +149,7 @@
       image.classList.add("zoomable-image");
       image.tabIndex = 0;
       image.setAttribute("role", "button");
-      image.setAttribute("aria-label", image.alt ? `放大图片：${image.alt}` : "放大图片");
+      image.setAttribute("aria-label", image.alt ? `Enlarge image: ${image.alt}` : "Enlarge image");
       image.addEventListener("click", (event) => {
         event.preventDefault();
         openImage(image);
