@@ -14,7 +14,7 @@ date: 2026-09-19T13:36:00+08:00
 
 [arxiv](https://arxiv.org/abs/2501.12948) | [hjfy](https://hjfy.top/arxiv/2501.12948)
 
-![](../assets/Pasted%20image%2020260727210604.png)
+![DeepSeek-R1 多阶段训练流程](../assets/Pasted%20image%2020260727210604.png)
 
 
 # DeepSeek-V3.2
@@ -76,7 +76,7 @@ mHC（Manifold-Constrained Hyper-Connections）是在 Hyper-Connections 的多�
 #### CSA
 
 Compressed Sparse Attention
-![](../assets/Pasted%20image%2020260915161544.png)
+![DeepSeek-V4 CSA 核心架构](../assets/Pasted%20image%2020260915161544.png)
 Lightning Indexer 和 Top-k Selector 的部分就是 DSA。Sliding Window KV Entries 是未压缩的 recent tokens，DeepSeek-V4 中 $n_w=128$。Indexer 使用的 KV 与 Attention KV 采用相同的压缩方式，序列位置仍然一一对应，因此可以依据 index score 进行选择。
 
 Compressed KV Entries 是经过有损压缩的 hidden states，不能直接逆向对应到某个特定 token，但可以通过专门训练的 probe 在一定程度上还原语义。稀疏化需要在训练和推理阶段保持一致，让模型在训练中适应这种结构。
@@ -109,7 +109,7 @@ OPD 的作用是将多个 expert 的知识蒸馏到最后统一的模型参数�
 ## Architecture
 
 
-![](../assets/Pasted%20image%2020260910153434.png)
+![DeepSeek-V4.1-Flash 总体架构](../assets/Pasted%20image%2020260910153434.png)
 
 ### Engram
 
@@ -141,7 +141,7 @@ OPD 的作用是将多个 expert 的知识蒸馏到最后统一的模型参数�
 
 ParallelSpec: Parallel Drafter for Efficient Speculative Decoding 是最早提出 parallel drafter 的工作。DFlash 把 block diffusion 引入 speculative decoding，用 diffusion-style drafter 做 single-pass parallel drafting。
 
-![](../assets/Pasted%20image%2020260918151051.png)
+![DSpark 架构与解码流程](../assets/Pasted%20image%2020260918151051.png)
 
 #### Semi-autoregressive generation
 
