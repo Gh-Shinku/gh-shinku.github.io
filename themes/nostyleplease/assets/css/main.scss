@@ -149,11 +149,11 @@ code {
   -webkit-text-size-adjust: 100%;
 }
 
-code.has-jax {
-  -webkit-font-smoothing: antialiased;
-  background: inherit !important;
-  border: none !important;
-  font-size: 100%;
+.katex-display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
 }
 
 /* 为行内代码添加样式 */

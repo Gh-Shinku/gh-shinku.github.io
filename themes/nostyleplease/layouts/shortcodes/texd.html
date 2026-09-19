@@ -1,3 +1,9 @@
-<span>
-$${{ .Get 0 }}$$
-</span>
+{{- $opts := dict "displayMode" true "output" "htmlAndMathml" "throwOnError" true -}}
+{{- with try (transform.ToMath (.Get 0) $opts) -}}
+  {{- with .Err -}}
+    {{- errorf "Unable to render mathematical markup: %s: see %s" . $.Position -}}
+  {{- else -}}
+    {{- .Value -}}
+    {{- $.Page.Store.Set "hasMath" true -}}
+  {{- end -}}
+{{- end -}}

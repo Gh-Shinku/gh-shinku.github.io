@@ -32,7 +32,7 @@ date: 2026-09-19T13:36:00+08:00
 
 [arxiv](https://arxiv.org/abs/2501.12948) | [hjfy](https://hjfy.top/arxiv/2501.12948)
 
-![](assets/Pasted%20image%2020260727210604.png)
+![](../assets/Pasted%20image%2020260727210604.png)
 
 
 # DeepSeek-V3.2
@@ -44,9 +44,9 @@ date: 2026-09-19T13:36:00+08:00
 DSA (DeepSeek Sparse Attention) 在标准 Attention 前添加了一个 lightning indexer，用于检索出值得进行 Attention 的 token，只让这部分 token 与 query 做 Attention，这就是稀疏注意力，相当于 DSA 先做了一轮粗筛。
 
 Lightning Indexer 的公式如下：
+
 $$
-I_{t,s}
-=
+I_{t,s} =
 \sum_{j=1}^{H^I}
 w^I_{t,j}
 \cdot
@@ -55,6 +55,7 @@ w^I_{t,j}
 q^I_{t,j}\cdot k^I_s
 \right)
 $$
+
 接下来逐个拆解各个部分：
 lightning indexer 计算 query token $h_t$ 和一个先前的 token $h_s$ 之间的检索分数，$s < q$，$I_{t,s}$ 表示 token t 与 token s 之间的检索分数。
 lightning indexer 由多个 head 组成，$H^I$ 表示 indexer heads 的数量，$w_{t,j}^I$ 是各个 head 的权重。设计的初衷是期望每个 head 能用于评估 token 的不同层面的价值，比如检查词义相关性、实体相关性、局部依赖、长距离依赖……当然实际训练出来的 head 不会有如此理想的人类语义，这种分 head 的思路其实和 MHA 以及 MoE 这些方法的思想是同构的。
@@ -62,6 +63,7 @@ lightning indexer 由多个 head 组成，$H^I$ 表示 indexer heads 的数量�
 indexer 有类似于 Attention 机制的 key/value，注意到公式中的 $q$ 和 $k$ 右上角都用 $I$ 标识它是 indexer 的参数，防止与 Attention 混淆。$q_{t,j}^I, k_{s}^I \in \mathbb{R}^{d^I}$ ，每个 query token 生成 $H^I$ 个 $q$ 参数，每个先前的 token 对应一个 $k$ 。
 
 得到当前 query token 与先前所有 token 之间的 index score 后，从中选出 TopK 的 token 进入 Attention 的计算，这就是 DSA。
+
 $$
 u_t =
 \operatorname{Attn}
@@ -70,6 +72,7 @@ h_t,
 \{c_s \mid I_{t,s}\in \operatorname{Top-k}(I_{t,:})\}
 \right)
 $$
+
 $\{c_s\}$ 是检索出的 TopK token 对应的 KV pairs。
 
 我最关心的问题是，在只对 TopK tokens 做 Attention 的情况下，positional embedding 通常是不连续的，模型的性能会因此退化吗？
@@ -93,7 +96,7 @@ mHC（Manifold-Constrained Hyper-Connections）是在 Hyper-Connections 的多�
 #### CSA
 
 Compressed Sparse Attention
-![](assets/Pasted%20image%2020260915161544.png)
+![](../assets/Pasted%20image%2020260915161544.png)
 Lightning Indexer 和 Top-k Selector 的部分就是 DSA，我相对不明确的地方有：
 1. ~~Sliding Window KV Entries 和 Selected Compressed KV Entries 做拼接，Sliding Window 是怎么定义的，是 recent tokens 吗？~~
 2. ~~用从原始 KV 计算出的 index scores 检索 compressed kv entries。KV 数量都被压缩少了，这是怎么选的 token？~~
@@ -148,7 +151,7 @@ OPD 的作用是将多个 expert 的知识蒸馏到最后统一的模型参数�
 ## Architecture
 
 
-![](assets/Pasted%20image%2020260910153434.png)
+![](../assets/Pasted%20image%2020260910153434.png)
 
 ### CED
 
@@ -191,12 +194,14 @@ micro-average & macro-average
 
 ParallelSpec: Parallel Drafter for Efficient Speculative Decoding 是最早提出 parallel drafter 的工作。DFlash 把 block diffusion 引入 speculative decoding，用 diffusion-style drafter 做 single-pass parallel drafting。
 
-![](assets/Pasted%20image%2020260918151051.png)
+![](../assets/Pasted%20image%2020260918151051.png)
 
 #### Semi-autoregressive generation
 
 The average latency per generated token is:
+
 $$L=\frac{T_{draft}+T_{verify}}{\tau}$$
+
 $T_{draft}$ 是 draft model generation 的时间
 $T_{verify}$ 是 target model verification 的时间
 $\tau$ 是被接受的 token 数
@@ -216,8 +221,7 @@ TODO: 这里需要的背景知识有点多，需要进行一些补习，不过�
 ##### Sequential stage
 
 $$
-p_k(v\mid x_0,x_{<k})
-=
+p_k(v\mid x_0,x_{<k}) =
 \frac{
 \exp(U_k(v)+B_k(x_0,x_{<k},v))
 }{
@@ -241,5 +245,3 @@ $$
 
 
 ## General Infrastructures
-
-

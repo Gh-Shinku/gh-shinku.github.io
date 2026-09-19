@@ -4,6 +4,12 @@ languageCode = 'zh-cn'
 title = "shinku's blog"
 
 [markup]
+  [markup.goldmark.extensions]
+    [markup.goldmark.extensions.passthrough]
+      enable = true
+      [markup.goldmark.extensions.passthrough.delimiters]
+        block = [['\[', '\]'], ['$$', '$$']]
+        inline = [['\(', '\)'], ['$', '$']]
   [markup.goldmark.renderer]
     unsafe = true
   [markup.highlight]
