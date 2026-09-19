@@ -4,29 +4,11 @@ title: "DeepSeek Technical Reports"
 date: 2026-09-19T13:36:00+08:00
 ---
 
-# DeepSeek-V1
-
-[arxiv](https://arxiv.org/abs/2401.02954)
-
 # DeepSeekMath
 
 [arxiv](https://arxiv.org/abs/2402.03300) | [hjfy](https://hjfy.top/arxiv/2402.03300)
 
 这篇提出了 GRPO，围绕 LLM Post Training 中的几种方法对 Math 领域问题的训练效果做了讨论。
-
-# DeepSeek-V2
-
-[arxiv](https://arxiv.org/abs/2405.04434)
-
-
-# DeepSeek-V3
-
-[arxiv](https://arxiv.org/abs/2412.19437) | [hjfy](https://hjfy.top/arxiv/2412.19437)
-
-
-
-
-
 
 # DeepSeek-R1
 
@@ -75,9 +57,7 @@ $$
 
 $\{c_s\}$ 是检索出的 TopK token 对应的 KV pairs。
 
-我最关心的问题是，在只对 TopK tokens 做 Attention 的情况下，positional embedding 通常是不连续的，模型的性能会因此退化吗？
-从公式上来看，相对位置不变，则 ROPE 下各个 token 的位置编码不变，则 embedding 以及 QKV 不变，只要 TopK tokens 持有的 Attention Score 比例够大，对结果几乎没有影响。我之所以会下意识的问出这个问题，是因为我之前看到过相关 paper 指出这个问题。
-找到了，是 [Prompt Cache: Modular Attention Reuse for Low-Latency Inference](https://arxiv.org/abs/2311.04934)，我在 [paper list](../../../Research/paper%20notes/paper%20list.md) 中有记录过它。我打算在 paper list 中专门记录这个方面的论文。
+只对 TopK tokens 做 Attention 时，positional embedding 通常是不连续的。由于 token 的相对位置不变，RoPE 下的位置编码以及由此得到的 QKV 也不变；只要 TopK tokens 覆盖了足够大的 Attention Score，这种稀疏化对结果的影响就较小。类似的位置编码问题也出现在 [Prompt Cache: Modular Attention Reuse for Low-Latency Inference](https://arxiv.org/abs/2311.04934) 中。
 
 # DeepSeek-V4
 
@@ -97,27 +77,13 @@ mHC（Manifold-Constrained Hyper-Connections）是在 Hyper-Connections 的多�
 
 Compressed Sparse Attention
 ![](../assets/Pasted%20image%2020260915161544.png)
-Lightning Indexer 和 Top-k Selector 的部分就是 DSA，我相对不明确的地方有：
-1. ~~Sliding Window KV Entries 和 Selected Compressed KV Entries 做拼接，Sliding Window 是怎么定义的，是 recent tokens 吗？~~
-2. ~~用从原始 KV 计算出的 index scores 检索 compressed kv entries。KV 数量都被压缩少了，这是怎么选的 token？~~
-3. ~~Compressed KV Entries 是什么样的？能将这些 KV Entries 逆向解析出语义信息吗？~~
+Lightning Indexer 和 Top-k Selector 的部分就是 DSA。Sliding Window KV Entries 是未压缩的 recent tokens，DeepSeek-V4 中 $n_w=128$。Indexer 使用的 KV 与 Attention KV 采用相同的压缩方式，序列位置仍然一一对应，因此可以依据 index score 进行选择。
 
-稀疏化肯定是要训推一体的，期望在 train-free 的情况下引入 sparse 的方式是不现实的，需要让模型习惯稀疏化。
-
-第一问：
-Sliding Window KV Entries 就是未压缩的 recent tokens，DeepSeek-V4 中 $n_{w}=128$ 。
-第二问：
-问题本身就理解错了，indexer 用的 KV 也是压缩过的，与 Attention KV 使用相同的压缩方式得到，KV 在序列数量上都是对应的，自然可以选择。
-第三问：
-Compressed KV Entries 是压缩后的 hidden states，这是有损压缩，类似于卷积。不能从 KV Entries 直接逆向对应某个特定的 token，但可以专门训练一个 probe 进行一定程度上的语义还原。
-由于 CSA 对 token 进行了压缩，位置编码也需要有新的处理方式。DSV4 对位置编码的具体处理方式有待阅读论文的 Partial Rotary Positional Embedding 部分。CSA 的具体公式也还没推一遍。
+Compressed KV Entries 是经过有损压缩的 hidden states，不能直接逆向对应到某个特定 token，但可以通过专门训练的 probe 在一定程度上还原语义。稀疏化需要在训练和推理阶段保持一致，让模型在训练中适应这种结构。
 
 #### HCA
 
 Heavily Compressed Attention
-
-Questions:
-1. ~~有了 CSA，为什么还有一个压缩程度更高的 HCA？引入它期望达到的目标是什么？二者在推理中如何权衡？~~
 
 HCA 相比 CSA 删去了 Sparse 部分，但提高了压缩率，即高压缩+全量注意力。HCA 的核心目标是建立低分辨率的全局视野。对于所有历史区域，都至少存在某个 compressed entry，而 query 对所有这些 entry 都做 attention。二者不在运行时动态权衡，而是预先定义在模型架构上，在 Transformer Layers 中交错使用。
 HCA 用极强的信息压缩消灭 Top-k routing 的 coverage blind spot，让每隔若干层，所有历史区域都重新拥有一条通向当前 token 的 attention 路径。
@@ -131,10 +97,6 @@ HCA 用极强的信息压缩消灭 Top-k routing 的 coverage blind spot，让�
 
 Muon (MomentUm Orthogonalized by Newton-Schulz) 主要用于神经网络中的二维权重矩阵，例如 Transformer 的线性层，而 embedding、bias、norm 参数以及通常的输出 head 往往仍然交给 AdamW。
 
-## General Infrastructures
-
-浏览了一遍，没有细看。
-
 ## Post Training
 
 OPD 的作用是将多个 expert 的知识蒸馏到最后统一的模型参数中。
@@ -144,37 +106,22 @@ OPD 的作用是将多个 expert 的知识蒸馏到最后统一的模型参数�
 
 [huggingface](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash)
 
-2026/9/10
-
-笑嘻了😄根本来不及看，连 V3 的报告都没吃透，V4.1 又发了。骗你的，V1 和 V2 都没来得及看。
-
 ## Architecture
 
 
 ![](../assets/Pasted%20image%2020260910153434.png)
 
-### CED
-
-
-### CSA2
-
-
-### Single-Pass mHC
-
-
 ### Engram
 
 [Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models](https://arxiv.org/abs/2601.07372)
 
-- https://zhuanlan.zhihu.com/p/1998076357154989024
-- https://www.bilibili.com/video/BV1x3zWB6EU6 讲的真的很好，很有见地，受益匪浅，我的阅历还是太浅了
+- [知乎解读](https://zhuanlan.zhihu.com/p/1998076357154989024)
+- [Bilibili 讲解](https://www.bilibili.com/video/BV1x3zWB6EU6)
 
 ### DSpark
 
 [DSpark: Confidence-Scheduled Speculative Decoding with Semi-Autoregressive Generation](https://arxiv.org/abs/2607.05147)
 在 Abstract 中学到一个新的术语，[Pareto frontier](https://en.wikipedia.org/wiki/Pareto_front)
-
-translated wikipedia intro. by ChatGPT
 
 在多目标优化（multi-objective optimization）中，Pareto 前沿（Pareto front，也称 Pareto frontier 或 Pareto curve）是所有 Pareto 有效（Pareto efficient）解所组成的集合。
 
@@ -186,7 +133,7 @@ translated wikipedia intro. by ChatGPT
 
 ---
 
-micro-average & macro-average
+#### Micro-average 与 macro-average
 
 一般意义上的 average 就是指 micro-average，而 macro-average 是宏（观）平均，先对每个子任务、数据集或类别分别计算指标，再对各个结果做**等权**平均。相对的，如果是以所有样本总数为分母对各个类别做加权平均就是 micro-average。
 
@@ -210,38 +157,3 @@ $\gamma$ 是 draft model 生成的 token 数
 为了降低延时，有三种方法，降低 $T_{draft}$ ，降低 $T_{verify}$ ，增大 $\tau$ 。面对这个优化目标，触及了 Pareto Frontier，也可以看作是一种不可能三角。
 
 现在 parallel 的方法能在不增加 $T_{draft}$ 的前提下增大 $\gamma$ ，但由于是 non-autoregressive model，它对上下文间的建模能力不够强，导致 $\tau$ 的劣化。为了提高 draft 被 target model 接受的概率，又引入一个 sequence block 用于建模 token-wise 的联系，从而在 $T_{draft}$ 和 $\tau$ 之间取得一个良好的 tradeoff，最终降低整体延时，拓展 Pareto frontier。本文称其为 semi-autoregressive generation。
-
-TODO: 这里需要的背景知识有点多，需要进行一些补习，不过我们已经把握住它的 insight 了，只是对建模的技术细节尚不明确。
-
-##### Parallel stage
-
-
-
-
-##### Sequential stage
-
-$$
-p_k(v\mid x_0,x_{<k}) =
-\frac{
-\exp(U_k(v)+B_k(x_0,x_{<k},v))
-}{
-\sum_{u\in\mathcal V}
-\exp(U_k(u)+B_k(x_0,x_{<k},u))
-}
-$$
-
-
-
-
-
-#### Confidence-scheduled verification
-
-
-
-
-
-
-### FP4 Main KV Cache
-
-
-## General Infrastructures

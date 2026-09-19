@@ -243,7 +243,49 @@ details[open] summary {
 
 .post-content {
     flex: 1;
-    min-width: 0; 
+    min-width: 0;
+    line-height: 1.65;
+}
+
+.post-title {
+    border-bottom: 2px solid var(--border-color);
+    font-size: clamp(1.8rem, 4vw, 2.35rem);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin: 0.5rem 0 2.75rem;
+    padding-bottom: 1rem;
+}
+
+.post-content > h1:not(.post-title) {
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.5rem;
+    line-height: 1.35;
+    margin: 3rem 0 1rem;
+    padding-bottom: 0.35rem;
+}
+
+.post-content > h2 {
+    font-size: 1.3rem;
+    line-height: 1.4;
+    margin: 2.5rem 0 0.9rem;
+}
+
+.post-content > h3 {
+    font-size: 1.15rem;
+    line-height: 1.45;
+    margin: 2rem 0 0.75rem;
+}
+
+.post-content > h4,
+.post-content > h5,
+.post-content > h6 {
+    font-size: 1rem;
+    line-height: 1.5;
+    margin: 1.75rem 0 0.65rem;
+}
+
+.post-content > p {
+    margin: 1.1rem 0;
 }
 
 .post-toc {
@@ -317,5 +359,14 @@ details[open] summary {
 @media (max-width: 768px) {
     .page-container {
         padding: 0 1rem; /* Reduce padding on smaller screens */
+    }
+
+    .post-title {
+        margin-bottom: 2rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .post-content > h1:not(.post-title) {
+        margin-top: 2.5rem;
     }
 }
