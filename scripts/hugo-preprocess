@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Run Hugo against a temporary, math-safe content tree.
+
+The source content directory remains read-only from this tool's perspective.
+When running ``hugo server``, changed files are mirrored into the temporary
+tree so Hugo's normal live reload continues to work.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+from math_preprocessor import preprocess_file
+
+
+POLL_INTERVAL = 0.25
+
+
+def _source_files(root: Path) -> dict[str, tuple[int, int, bool]]:
+    """Return a cheap change signature for every file below *root*."""
+
+    result: dict[str, tuple[int, int, bool]] = {}
+    for path in root.rglob("*"):
+        if not path.is_file() and not path.is_symlink():
+            continue
+        stat = path.stat()
+        result[str(path.relative_to(root))] = (stat.st_mtime_ns, stat.st_size, path.is_symlink())
+    return result
+
+
+def _copy_file(source: Path, destination: Path) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists() or destination.is_symlink():
+        destination.unlink()
+    if source.is_symlink():
+        destination.symlink_to(os.readlink(source))
+    else:
+        shutil.copy2(source, destination)
+
+
+def _sync_file(source: Path, destination: Path) -> None:
+    if source.suffix.lower() in {".md", ".markdown"} and not source.is_symlink():
+        preprocess_file(source, destination)
+    else:
+        _copy_file(source, destination)
+
+
+def _sync_tree(source_root: Path, destination_root: Path, previous: dict[str, tuple[int, int, bool]] | None = None) -> dict[str, tuple[int, int, bool]]:
+    current = _source_files(source_root)
+    old = previous or {}
+
+    for relative in old.keys() - current.keys():
+        target = destination_root / relative
+        if target.exists() or target.is_symlink():
+            target.unlink()
+
+    for relative, signature in current.items():
+        if previous is not None and old.get(relative) == signature:
+            continue
+        _sync_file(source_root / relative, destination_root / relative)
+
+    return current
+
+
+def _replace_content_dir(args: list[str], content_dir: Path) -> list[str]:
+    result = list(args)
+    for index, argument in enumerate(result):
+        if argument == "--contentDir" and index + 1 < len(result):
+            result[index + 1] = str(content_dir)
+            return result
+        if argument.startswith("--contentDir="):
+            result[index] = f"--contentDir={content_dir}"
+            return result
+    result.extend(["--contentDir", str(content_dir)])
+    return result
+
+
+def _is_server_command(args: list[str]) -> bool:
+    return "server" in args and not any(argument in {"--help", "-h"} for argument in args)
+
+
+def _run_hugo(args: list[str], content_dir: Path, source_dir: Path) -> int:
+    hugo_binary = os.environ.get("HUGO_BIN", "hugo")
+    command = [hugo_binary, *_replace_content_dir(args, content_dir)]
+    server_mode = _is_server_command(args)
+
+    child = subprocess.Popen(command, cwd=source_dir)
+
+    def forward_signal(signum: int, _frame: object) -> None:
+        if child.poll() is None:
+            child.send_signal(signum)
+
+    signal.signal(signal.SIGINT, forward_signal)
+    signal.signal(signal.SIGTERM, forward_signal)
+
+    if not server_mode:
+        return child.wait()
+
+    signatures = _source_files(source_dir / "content")
+    while child.poll() is None:
+        time.sleep(POLL_INTERVAL)
+        signatures = _sync_tree(source_dir / "content", content_dir, signatures)
+    return child.returncode
+
+
+def main(argv: list[str] | None = None) -> int:
+    hugo_args = list(sys.argv[1:] if argv is None else argv)
+    if hugo_args[:1] == ["--"]:
+        hugo_args = hugo_args[1:]
+
+    repository_root = Path(__file__).resolve().parents[1]
+    source_dir = repository_root
+    source_content = source_dir / "content"
+    if not source_content.is_dir():
+        print(f"error: content directory not found: {source_content}", file=sys.stderr)
+        return 2
+
+    with tempfile.TemporaryDirectory(prefix="hugo-content-") as temporary:
+        generated_content = Path(temporary) / "content"
+        generated_content.mkdir()
+        _sync_tree(source_content, generated_content)
+        return _run_hugo(hugo_args, generated_content, source_dir)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
