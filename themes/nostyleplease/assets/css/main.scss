@@ -165,6 +165,15 @@ pre {
   white-space: pre;
 }
 
+/* Fenced code blocks without a language do not receive Hugo's .highlight wrapper. */
+pre:not(.chroma) {
+  background-color: var(--code-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--code-text);
+  margin: 1.5rem 0;
+}
+
 table { width: 100%; }
 
 table, th, td {
@@ -181,7 +190,7 @@ code {
   border: none;
   padding: 0;
   white-space: pre;   /* Preserve whitespace */
-  
+
   /* Browser compatibility */
   text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -212,6 +221,14 @@ p > code, li > code, dd > code, dt > code {
   color: var(--code-text);
   margin: 1.5rem 0;
   overflow: hidden;
+}
+
+.highlight > pre:not(.chroma) {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  margin: 0;
 }
 
 .code-toolbar {

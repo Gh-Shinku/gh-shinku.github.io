@@ -90,9 +90,19 @@
     textarea.remove();
   };
 
-  document.querySelectorAll(".post-content .highlight").forEach((highlight) => {
+  document.querySelectorAll(".post-content .highlight, .post-content pre:not(.chroma)").forEach((block) => {
+    let highlight = block;
+    if (block.matches("pre")) {
+      highlight = document.createElement("div");
+      highlight.className = "highlight";
+      block.replaceWith(highlight);
+      highlight.append(block);
+    }
+
     const code = highlight.querySelector("code");
     if (!code) return;
+
+    if (highlight.querySelector(":scope > .code-toolbar")) return;
 
     const toolbar = document.createElement("div");
     toolbar.className = "code-toolbar";
