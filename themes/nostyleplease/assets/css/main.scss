@@ -360,15 +360,22 @@ details[open] summary {
 }
 
 .post-dates {
+  color: var(--text-color-secondary);
   display: flex;
   flex-wrap: wrap;
+  font-size: 0.9rem;
   gap: 0.35rem 1rem;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin: 0;
 }
 
 .post-dates span {
   white-space: nowrap;
+}
+
+/* The dates live inside .post-content, so they must outrank `.post-content > p`. */
+.post-content > .post-dates {
+  margin: 0 0 1.5rem;
 }
 
 .w {
@@ -437,6 +444,11 @@ details[open] summary {
 
 .post-tags {
     margin-bottom: 2.5rem;
+}
+
+/* The dates follow the tags, so tighten the gap between the two. */
+.post-tags:has(+ .post-dates) {
+    margin-bottom: 0.75rem;
 }
 
 .post-tags ul {
@@ -744,7 +756,7 @@ details[open] summary {
 
     .post-dates {
         flex-direction: column;
-        text-align: right;
+        text-align: left;
     }
 
     .post-pagination {
@@ -767,4 +779,13 @@ details[open] summary {
 
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+}
+
+/* The dates above already separate the header from the body, so whatever block comes first
+   contributes no top margin of its own. Margins collapse here, meaning the gap would
+   otherwise be whichever of the two is larger. This has to stay last in the file: the
+   heading rules further up, including the responsive ones, set margin-top on these same
+   elements at equal specificity, so source order is what decides. */
+.post-content > .post-dates + :is(h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre, table) {
+    margin-top: 0;
 }

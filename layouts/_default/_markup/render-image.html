@@ -1,0 +1,20 @@
+{{- /* Resolve bundle-relative image paths to absolute URLs so images also work on
+       list pages, in RSS, and anywhere else the content renders at another depth. */ -}}
+{{- $destination := .Destination -}}
+{{- $page := .Page -}}
+{{- $resource := false -}}
+{{- if not (or (strings.HasPrefix $destination "http://") (strings.HasPrefix $destination "https://") (strings.HasPrefix $destination "//") (strings.HasPrefix $destination "/") (strings.HasPrefix $destination "#") (strings.HasPrefix $destination "data:")) -}}
+  {{- range (slice $destination (replace $destination "%20" " ")) -}}
+    {{- if not $resource -}}
+      {{- with $page.Resources.GetMatch . -}}{{- $resource = . -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not $resource -}}
+    {{- $base := replace (path.Base $destination) "%20" " " -}}
+    {{- range $page.Resources -}}
+      {{- if and (not $resource) (eq (path.Base .Name) $base) -}}{{- $resource = . -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $src := $destination -}}
+{{- with $resource -}}{{- $src = .Permalink -}}{{- end -}}<img src="{{ $src }}" alt="{{ .Text }}"{{ with .Title }} title="{{ . }}"{{ end }}>
